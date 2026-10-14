@@ -81,20 +81,20 @@ function setAction() {
     button.disabled = phase !== "running" || participatedThisRound;
   });
   if (phase === "running" && joined) {
-    title.textContent = "Cash out demo credits";
+    title.textContent = "Cash out credits";
     subtitle.textContent = `Estimated return ${formatMoney(stake * multiplierValue)}`;
     actionButton.disabled = false;
   } else if (phase === "running" && participatedThisRound) {
     title.textContent = "Already cashed out";
-    subtitle.textContent = "Wait for the next demo flight";
+    subtitle.textContent = "Wait for the next flight";
     actionButton.disabled = true;
   } else if (phase === "running") {
     title.textContent = "Join next round";
-    subtitle.textContent = "Demo only · no real money";
+    subtitle.textContent = "Play credits only · no cash value";
     actionButton.disabled = false;
   } else if (phase === "countdown") {
     title.textContent = `Flight starts in ${countdownSeconds}s`;
-    subtitle.textContent = "Forecast is for this demo flight";
+    subtitle.textContent = "Forecast for the upcoming flight";
     actionButton.disabled = true;
   } else {
     title.textContent = "Get ready for next round";
@@ -109,7 +109,7 @@ function finishRound() {
   $("#game-status").textContent = "ROUND COMPLETE";
   $("#crash-result").textContent = `Final flight: ${crashedAt.toFixed(2)}×`;
   $("#crash-overlay").hidden = false;
-  if (joined) tell("Flight ended. This demo round did not cash out.");
+  if (joined) tell("Flight ended before you cashed out.");
   joined = false;
   setAction();
   addOutcome(crashedAt, "NOW");
@@ -128,9 +128,9 @@ function startRound() {
   $("#round-number").textContent = `#${roundNumber}`;
   $("#flight-number").textContent = String(roundNumber).padStart(6, "0");
   $("#model-read").textContent = "PRE-FLIGHT";
-  $("#read-badge").textContent = "DEMO";
+  $("#read-badge").textContent = "SCHEDULED";
   $("#forecast-value").textContent = `~${crashedAt.toFixed(2)}×`;
-  $("#prediction-copy").textContent = "This simulator has a scheduled crash point. Real Aviator outcomes cannot be predicted this way.";
+  $("#prediction-copy").textContent = "This flight has a preset result. Real Aviator outcomes cannot be predicted this way.";
   $("#game-status").textContent = `NEXT FLIGHT IN ${countdownSeconds}s`;
   $("#crash-overlay").hidden = true;
   updateFlight();
@@ -167,7 +167,7 @@ function cashOut() {
   const returned = stake * multiplierValue;
   balance += returned;
   renderBalance();
-  tell(`Demo cash-out: ${multiplierValue.toFixed(2)}× · ${formatMoney(returned)} returned.`);
+  tell(`Cashed out at ${multiplierValue.toFixed(2)}× · ${formatMoney(returned)} play credits returned.`);
   joined = false;
   participatedThisRound = true;
   setAction();
@@ -175,7 +175,7 @@ function cashOut() {
 
 actionButton.addEventListener("click", () => {
   if (phase !== "running") {
-    tell("Next demo flight is getting ready.");
+    tell("Next flight is getting ready.");
     return;
   }
   if (joined) {
@@ -183,16 +183,16 @@ actionButton.addEventListener("click", () => {
     return;
   }
   if (participatedThisRound) {
-    tell("You already played this demo round.");
+    tell("You already played this round.");
     return;
   }
   stake = Number($("#bet-amount").value);
   if (!Number.isFinite(stake) || stake < 1 || stake > 1000) {
-    tell("Choose a demo stake between $1 and $1,000.");
+    tell("Choose a stake between $1 and $1,000.");
     return;
   }
   if (stake > balance) {
-    tell("Not enough demo credits. Choose a smaller stake.");
+    tell("Not enough play credits. Choose a smaller stake.");
     return;
   }
   balance -= stake;
@@ -200,7 +200,7 @@ actionButton.addEventListener("click", () => {
   joined = true;
   participatedThisRound = true;
   setAction();
-  tell(`Joined round #${roundNumber} with ${formatMoney(stake)} demo credits.`);
+  tell(`Joined round #${roundNumber} with ${formatMoney(stake)} in play credits.`);
 });
 
 $("#bet-amount").addEventListener("input", (event) => {
@@ -231,7 +231,7 @@ $("#sound-toggle").addEventListener("click", (event) => {
   const enabled = button.getAttribute("aria-pressed") !== "true";
   button.setAttribute("aria-pressed", String(enabled));
   button.querySelector("span").textContent = enabled ? "Sound on" : "Sound off";
-  tell(enabled ? "Sound controls are a visual demo." : "Sound off.");
+  tell(enabled ? "Sound controls are not connected yet." : "Sound off.");
 });
 
 initialHistory.forEach((value, index) => {

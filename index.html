@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080b10">
-  <meta name="description" content="Skyline — a demo crash-game experience with flight predictions.">
+  <meta name="description" content="Skyline — crash-game flights with pre-flight forecasts.">
   <title>Skyline — Flight Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
     <header class="topbar">
       <a class="brand" href="#"><span class="brand-mark">S✳</span><span>skyline<small>FLIGHT CLUB</small></span></a>
       <nav><a class="active" href="#game">Crash</a><a href="#predictions">Predictions</a><a href="#how-to-play">How to play</a></nav>
-      <div class="account"><span class="demo">DEMO MODE</span><span class="balance"><small>DEMO BALANCE</small><strong id="balance">$1,000.00</strong></span><span class="avatar">JD</span></div>
+      <div class="account"><span class="account-mode">MAIN ACCOUNT</span><span class="balance"><small>PLAY BALANCE</small><strong id="balance">$1,000.00</strong></span><span class="avatar" aria-label="Jordan Davis account">JD</span></div>
     </header>
     <section class="layout" id="game">
       <aside class="flight-panel" id="predictions">
@@ -26,33 +26,33 @@
         <div class="round-summary"><span>ROUND <strong id="round-number">#28419</strong></span><span>FLIGHT STATUS <strong class="watch" id="model-read">PRE-FLIGHT</strong></span></div>
         <div class="feed" id="prediction-feed"><div class="feed-title"><span>RECENT FLIGHTS</span><span>OUTCOME</span></div></div>
         <div class="prediction">
-          <div class="prediction-heading"><span class="spark">✳</span><span><small>SIMULATED PRE-FLIGHT FORECAST</small><strong>Scheduled crash point</strong></span><b id="read-badge">PREVIEW</b></div>
+          <div class="prediction-heading"><span class="spark">✳</span><span><small>PRE-FLIGHT FORECAST</small><strong>Scheduled crash point</strong></span><b id="read-badge">PREVIEW</b></div>
           <div class="forecast-value" id="forecast-value">—×</div>
-          <p id="prediction-copy">Shown before each demo flight. This does not predict real crash games.</p>
+          <p id="prediction-copy">Shown before each flight. This does not predict real crash games.</p>
         </div>
-        <p class="disclaimer"><b>ⓘ &nbsp;Demo only.</b> No real wagers, payouts, or predictive claims.</p>
+        <p class="disclaimer"><b>ⓘ &nbsp;Virtual play credits only.</b> No real wagers or payouts.</p>
       </aside>
       <section class="game-main">
         <div class="game-toolbar"><span><i></i><b id="game-status">ROUND IN PROGRESS</b></span><button id="sound-toggle" aria-pressed="false">♫ <span>Sound off</span></button></div>
         <div class="stage" id="sky-stage">
-          <div class="stage-meta"><span>SKYLINE AIRWAYS · FLIGHT <b id="flight-number">028419</b></span><span id="stage-time">DEMO SIMULATION</span></div>
+          <div class="stage-meta"><span>SKYLINE AIRWAYS · FLIGHT <b id="flight-number">028419</b></span><span id="stage-time">FLIGHT ROUND</span></div>
           <div class="stars"></div><div class="horizon"></div><div class="city" aria-hidden="true"></div>
           <svg class="path" viewBox="0 0 740 340" preserveAspectRatio="none" aria-hidden="true"><path class="path-shadow" d="M25 310 C190 306 238 283 332 253 S475 207 520 160"/><path id="path-curve" d="M25 310 C190 306 238 283 332 253 S475 207 520 160"/></svg>
           <div class="plane" id="plane">✈</div>
           <div class="multiplier" id="flight-multiplier">1.00<span>×</span></div>
           <div class="crash-overlay" id="crash-overlay" hidden><b>×</b><strong>FLIGHT ENDED</strong><span id="crash-result">Round complete</span></div>
-          <div class="stage-foot"><span><i></i> LIVE FLIGHT DATA</span><span>FICTIONAL ROUND</span></div>
+          <div class="stage-foot"><span><i></i> LIVE FLIGHT DATA</span><span>PLAY ROUND</span></div>
         </div>
         <div class="controls">
-          <div class="bet-card"><div class="bet-title"><span>DEMO WAGER</span><span>DEMO CREDITS</span></div><div class="amount"><button id="decrease-bet" aria-label="Decrease stake">−</button><label>$<input id="bet-amount" type="number" min="1" max="1000" value="25" aria-label="Demo stake">.00</label><button id="increase-bet" aria-label="Increase stake">+</button></div><div class="quick"><button data-amount="10">$10</button><button data-amount="25" class="selected">$25</button><button data-amount="50">$50</button><button data-amount="100">$100</button></div></div>
-          <button class="action" id="action-button"><strong id="action-title">Join next round</strong><small id="action-subtitle">Demo only · no real money</small><span>→</span></button>
+          <div class="bet-card"><div class="bet-title"><span>WAGER</span><span>PLAY CREDITS</span></div><div class="amount"><button id="decrease-bet" aria-label="Decrease stake">−</button><label>$<input id="bet-amount" type="number" min="1" max="1000" value="25" aria-label="Play credit amount">.00</label><button id="increase-bet" aria-label="Increase stake">+</button></div><div class="quick"><button data-amount="10">$10</button><button data-amount="25" class="selected">$25</button><button data-amount="50">$50</button><button data-amount="100">$100</button></div></div>
+          <button class="action" id="action-button"><strong id="action-title">Join next round</strong><small id="action-subtitle">Play credits only · no cash value</small><span>→</span></button>
           <div class="auto"><span>AUTO CASH-OUT</span><label class="switch"><input type="checkbox" id="auto-cashout"><i></i></label><label class="auto-value"><input id="auto-value" type="number" min="1.1" max="100" step="0.1" value="2.0" aria-label="Auto cash-out multiplier">×</label></div>
         </div>
-        <div class="history"><div class="history-title"><strong>ROUND HISTORY</strong><span>Latest demo flights</span></div><div class="history-items" id="history-chips"></div></div>
-        <section class="how" id="how-to-play"><div><b>01</b><strong>Choose a demo stake</strong><span>Use fictional credits, never real money.</span></div><div><b>02</b><strong>Watch the flight</strong><span>The multiplier rises as the plane flies.</span></div><div><b>03</b><strong>Try cashing out</strong><span>End your demo round before it ends.</span></div></section>
+        <div class="history"><div class="history-title"><strong>ROUND HISTORY</strong><span>Latest flights</span></div><div class="history-items" id="history-chips"></div></div>
+        <section class="how" id="how-to-play"><div><b>01</b><strong>Choose your stake</strong><span>Play with virtual credits only.</span></div><div><b>02</b><strong>Watch the flight</strong><span>The multiplier rises as the plane flies.</span></div><div><b>03</b><strong>Try cashing out</strong><span>End your round before the flight ends.</span></div></section>
       </section>
     </section>
-    <footer>SKYLINE FLIGHT CLUB · CRASH-GAME-INSPIRED DEMO <span>Entertainment only. No real betting or guaranteed predictions. 18+</span></footer>
+    <footer>SKYLINE FLIGHT CLUB · CRASH-GAME-INSPIRED FLIGHT GAME <span>Entertainment only. Play credits are virtual; there is no real-money account, betting, or guaranteed prediction. 18+</span></footer>
     <div class="toast" id="toast" role="status"></div>
   </main>
 </body>
