@@ -5,6 +5,7 @@ const multiplier = $("#flight-multiplier");
 const plane = $("#plane");
 const actionButton = $("#action-button");
 const toast = $("#toast");
+const roomFeed = $("#room-feed");
 
 let roundNumber = 28418;
 let phase = "running";
@@ -32,6 +33,21 @@ function tell(message) {
   toast.classList.add("show");
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2300);
+}
+
+function postRoomMessage(message, type = "system") {
+  const item = document.createElement("div");
+  item.className = `room-message ${type}`;
+  const time = document.createElement("small");
+  time.textContent = type === "user"
+    ? `YOU · ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+    : `SKYLINE · ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  const text = document.createElement("span");
+  text.textContent = message;
+  item.append(time, text);
+  roomFeed.append(item);
+  while (roomFeed.children.length > 12) roomFeed.firstElementChild.remove();
+  roomFeed.scrollTop = roomFeed.scrollHeight;
 }
 
 function renderBalance() {
@@ -110,6 +126,7 @@ function finishRound() {
   $("#crash-result").textContent = `Final flight: ${crashedAt.toFixed(2)}×`;
   $("#crash-overlay").hidden = false;
   if (joined) tell("Flight ended before you cashed out.");
+  postRoomMessage(`Flight ${roundNumber} ended at ${crashedAt.toFixed(2)}×.`);
   joined = false;
   setAction();
   addOutcome(crashedAt, "NOW");
@@ -131,6 +148,7 @@ function startRound() {
   $("#read-badge").textContent = "SCHEDULED";
   $("#forecast-value").textContent = `~${crashedAt.toFixed(2)}×`;
   $("#prediction-copy").textContent = "This flight has a preset result. Real Aviator outcomes cannot be predicted this way.";
+  postRoomMessage(`Flight ${roundNumber} forecast is ${crashedAt.toFixed(2)}×. This is a preset game result, not a real-world prediction.`);
   $("#game-status").textContent = `NEXT FLIGHT IN ${countdownSeconds}s`;
   $("#crash-overlay").hidden = true;
   updateFlight();
@@ -152,6 +170,7 @@ function launchRound() {
   phase = "running";
   $("#model-read").textContent = "IN FLIGHT";
   $("#game-status").textContent = "ROUND IN PROGRESS";
+  postRoomMessage(`Flight ${roundNumber} is in the air.`);
   setAction();
   flightTimer = window.setInterval(() => {
     multiplierValue = Math.min(crashedAt, multiplierValue + Math.max(.012, multiplierValue * .016));
@@ -168,6 +187,7 @@ function cashOut() {
   balance += returned;
   renderBalance();
   tell(`Cashed out at ${multiplierValue.toFixed(2)}× · ${formatMoney(returned)} play credits returned.`);
+  postRoomMessage(`You cashed out at ${multiplierValue.toFixed(2)}×.`);
   joined = false;
   participatedThisRound = true;
   setAction();
@@ -232,6 +252,15 @@ $("#sound-toggle").addEventListener("click", (event) => {
   button.setAttribute("aria-pressed", String(enabled));
   button.querySelector("span").textContent = enabled ? "Sound on" : "Sound off";
   tell(enabled ? "Sound controls are not connected yet." : "Sound off.");
+});
+
+$("#room-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = $("#room-input");
+  const note = input.value.trim();
+  if (!note) return;
+  postRoomMessage(note, "user");
+  input.value = "";
 });
 
 initialHistory.forEach((value, index) => {

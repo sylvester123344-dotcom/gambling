@@ -23,7 +23,7 @@
       <aside class="flight-panel" id="predictions">
         <div class="panel-heading"><div><span class="kicker"><i></i> FLIGHT INTELLIGENCE</span><h1>Flight log</h1></div><span class="live"><i></i> LIVE</span></div>
         <p class="panel-copy">Predictions are estimates, never guarantees.</p>
-        <div class="round-summary"><span>ROUND <strong id="round-number">#28419</strong></span><span>FLIGHT STATUS <strong class="watch" id="model-read">PRE-FLIGHT</strong></span></div>
+        <div class="round-summary"><span>ROUND <strong id="round-number">#28419</strong></span><span>STATUS <strong class="watch" id="model-read">PRE-FLIGHT</strong></span></div>
         <div class="feed" id="prediction-feed"><div class="feed-title"><span>RECENT FLIGHTS</span><span>OUTCOME</span></div></div>
         <div class="prediction">
           <div class="prediction-heading"><span class="spark">✳</span><span><small>PRE-FLIGHT FORECAST</small><strong>Scheduled crash point</strong></span><b id="read-badge">PREVIEW</b></div>
@@ -34,10 +34,11 @@
       </aside>
       <section class="game-main">
         <div class="game-toolbar"><span><i></i><b id="game-status">ROUND IN PROGRESS</b></span><button id="sound-toggle" aria-pressed="false">♫ <span>Sound off</span></button></div>
+        <div class="history"><div class="history-title"><strong>ROUND HISTORY</strong><span>Latest flights</span></div><div class="history-items" id="history-chips"></div></div>
         <div class="stage" id="sky-stage">
           <div class="stage-meta"><span>SKYLINE AIRWAYS · FLIGHT <b id="flight-number">028419</b></span><span id="stage-time">FLIGHT ROUND</span></div>
           <div class="stars"></div><div class="horizon"></div><div class="city" aria-hidden="true"></div>
-          <svg class="path" viewBox="0 0 740 340" preserveAspectRatio="none" aria-hidden="true"><path class="path-shadow" d="M25 310 C190 306 238 283 332 253 S475 207 520 160"/><path id="path-curve" d="M25 310 C190 306 238 283 332 253 S475 207 520 160"/></svg>
+          <svg class="path" viewBox="0 0 740 340" preserveAspectRatio="none" aria-hidden="true"><path class="flight-area" d="M25 310 C190 306 238 283 332 253 S475 207 520 160 L520 340 L25 340 Z"/><path class="path-shadow" d="M25 310 C190 306 238 283 332 253 S475 207 520 160"/><path id="path-curve" d="M25 310 C190 306 238 283 332 253 S475 207 520 160"/></svg>
           <div class="plane" id="plane">✈</div>
           <div class="multiplier" id="flight-multiplier">1.00<span>×</span></div>
           <div class="crash-overlay" id="crash-overlay" hidden><b>×</b><strong>FLIGHT ENDED</strong><span id="crash-result">Round complete</span></div>
@@ -48,9 +49,17 @@
           <button class="action" id="action-button"><strong id="action-title">Join next round</strong><small id="action-subtitle">Play credits only · no cash value</small><span>→</span></button>
           <div class="auto"><span>AUTO CASH-OUT</span><label class="switch"><input type="checkbox" id="auto-cashout"><i></i></label><label class="auto-value"><input id="auto-value" type="number" min="1.1" max="100" step="0.1" value="2.0" aria-label="Auto cash-out multiplier">×</label></div>
         </div>
-        <div class="history"><div class="history-title"><strong>ROUND HISTORY</strong><span>Latest flights</span></div><div class="history-items" id="history-chips"></div></div>
         <section class="how" id="how-to-play"><div><b>01</b><strong>Choose your stake</strong><span>Play with virtual credits only.</span></div><div><b>02</b><strong>Watch the flight</strong><span>The multiplier rises as the plane flies.</span></div><div><b>03</b><strong>Try cashing out</strong><span>End your round before the flight ends.</span></div></section>
       </section>
+      <aside class="room-panel" aria-label="Personal round chat">
+        <div class="room-header"><div><span class="room-kicker">FLIGHT ROOM</span><strong>Round chat</strong></div><span class="room-status"><i></i> YOU ONLY</span></div>
+        <div class="room-notice"><span>✦</span><p><strong>Your personal flight room</strong><br>Round forecasts and updates appear here. Messages stay in this browser.</p></div>
+        <div class="room-feed" id="room-feed" aria-live="polite">
+          <div class="room-message system"><small>SKYLINE · NOW</small><span>Welcome aboard. The next flight forecast will appear here.</span></div>
+        </div>
+        <form class="room-compose" id="room-form"><label class="visually-hidden" for="room-input">Add a private note</label><input id="room-input" type="text" maxlength="120" placeholder="Write a private note..." autocomplete="off"><button type="submit" aria-label="Add private note">↑</button></form>
+        <p class="room-foot">Personal notes are not shared with other players.</p>
+      </aside>
     </section>
     <footer>SKYLINE FLIGHT CLUB · CRASH-GAME-INSPIRED FLIGHT GAME <span>Entertainment only. Play credits are virtual; there is no real-money account, betting, or guaranteed prediction. 18+</span></footer>
     <div class="toast" id="toast" role="status"></div>
