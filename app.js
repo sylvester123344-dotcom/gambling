@@ -16,6 +16,8 @@ let balance = 1000;
 let stake = 25;
 let toastTimer;
 let flightTimer;
+let countdownTimer;
+let countdownSeconds = 5;
 
 const outcomes = [1.42, 2.18, 1.09, 3.64, 1.76, 1.23, 5.12, 1.31, 2.74, 1.58];
 let outcomeIndex = 0;
@@ -57,25 +59,6 @@ function addOutcome(value, time = "NOW", flightRound = roundNumber) {
   chip.textContent = `${value.toFixed(2)}×`;
   history.prepend(chip);
   while (history.children.length > 9) history.lastElementChild.remove();
-  updatePrediction();
-}
-
-function updatePrediction() {
-  const recent = [...feed.querySelectorAll(".feed-result")].slice(0, 5);
-  const values = recent.map((item) => Number.parseFloat(item.textContent));
-  if (!values.length) return;
-  const low = values.filter((value) => value < 1.5).length;
-  const reading = low >= 3 ? "CAUTIOUS" : low >= 2 ? "WATCH" : "CLEAR";
-  const confidence = Math.min(82, 54 + Math.abs(low - 2) * 8 + values.length * 2);
-  $("#model-read").textContent = reading;
-  $("#read-badge").textContent = reading;
-  $("#confidence-label").textContent = `${confidence}%`;
-  $("#confidence-bar").style.width = `${confidence}%`;
-  $("#prediction-copy").textContent = reading === "CAUTIOUS"
-    ? "Several short flights in a row. Consider sitting this one out."
-    : reading === "CLEAR"
-      ? "Recent rounds look mixed. Stay grounded and set a limit."
-      : "The pattern is mixed. Watch the flight; nothing is guaranteed.";
 }
 
 function updateFlight() {
@@ -95,7 +78,7 @@ function setAction() {
   const subtitle = $("#action-subtitle");
   $("#bet-amount").disabled = phase === "running" && participatedThisRound;
   document.querySelectorAll(".quick button, .amount button").forEach((button) => {
-    button.disabled = phase === "running" && participatedThisRound;
+    button.disabled = phase !== "running" || participatedThisRound;
   });
   if (phase === "running" && joined) {
     title.textContent = "Cash out demo credits";
@@ -109,6 +92,10 @@ function setAction() {
     title.textContent = "Join next round";
     subtitle.textContent = "Demo only · no real money";
     actionButton.disabled = false;
+  } else if (phase === "countdown") {
+    title.textContent = `Flight starts in ${countdownSeconds}s`;
+    subtitle.textContent = "Forecast is for this demo flight";
+    actionButton.disabled = true;
   } else {
     title.textContent = "Get ready for next round";
     subtitle.textContent = "Round restarting shortly";
@@ -131,20 +118,43 @@ function finishRound() {
 
 function startRound() {
   roundNumber += 1;
-  phase = "running";
+  phase = "countdown";
   joined = false;
   participatedThisRound = false;
   multiplierValue = 1;
   crashedAt = outcomes[outcomeIndex % outcomes.length];
   outcomeIndex += 1;
+  countdownSeconds = 5;
   $("#round-number").textContent = `#${roundNumber}`;
   $("#flight-number").textContent = String(roundNumber).padStart(6, "0");
-  $("#game-status").textContent = "ROUND IN PROGRESS";
+  $("#model-read").textContent = "PRE-FLIGHT";
+  $("#read-badge").textContent = "DEMO";
+  $("#forecast-value").textContent = `~${crashedAt.toFixed(2)}×`;
+  $("#prediction-copy").textContent = "This simulator has a scheduled crash point. Real Aviator outcomes cannot be predicted this way.";
+  $("#game-status").textContent = `NEXT FLIGHT IN ${countdownSeconds}s`;
   $("#crash-overlay").hidden = true;
   updateFlight();
   setAction();
+  window.clearInterval(countdownTimer);
+  countdownTimer = window.setInterval(() => {
+    countdownSeconds -= 1;
+    if (countdownSeconds <= 0) {
+      window.clearInterval(countdownTimer);
+      launchRound();
+      return;
+    }
+    $("#game-status").textContent = `NEXT FLIGHT IN ${countdownSeconds}s`;
+    setAction();
+  }, 1000);
+}
+
+function launchRound() {
+  phase = "running";
+  $("#model-read").textContent = "IN FLIGHT";
+  $("#game-status").textContent = "ROUND IN PROGRESS";
+  setAction();
   flightTimer = window.setInterval(() => {
-    multiplierValue += Math.max(.012, multiplierValue * .016);
+    multiplierValue = Math.min(crashedAt, multiplierValue + Math.max(.012, multiplierValue * .016));
     updateFlight();
     setAction();
     if ($("#auto-cashout").checked && joined && multiplierValue >= Number($("#auto-value").value)) cashOut();
