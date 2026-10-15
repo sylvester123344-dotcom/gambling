@@ -125,3 +125,16 @@ footer span{font-size:7px}
 @media(max-width:820px){.layout{grid-template-columns:190px minmax(0,1fr)}.room-panel{position:static;grid-column:1/-1;min-height:230px;max-height:310px}.room-feed{min-height:90px}.stage{height:350px}.controls{grid-template-columns:minmax(120px,.9fr) minmax(140px,1.1fr);}.auto{grid-column:1/-1}}
 @media(max-width:650px){.app{padding-right:8px;padding-left:8px}.layout{grid-template-columns:minmax(0,1fr);gap:9px}.flight-panel,.room-panel{position:static;grid-column:auto;min-height:0;max-height:none}.flight-panel{order:1}.game-main{order:2}.room-panel{order:3;min-height:230px}.stage{height:265px;min-height:225px}.controls{grid-template-columns:1fr 1fr}.bet-card{grid-row:span 2}.auto{grid-column:auto;grid-template-columns:1fr auto}.auto-value{grid-column:1/-1;width:auto}.how{grid-template-columns:1fr 1fr}.topbar{height:55px}.topbar nav{gap:9px}.topbar nav a{font-size:8px}.account{gap:6px}.account-mode{font-size:6px}.balance small{font-size:6px}footer{gap:5px}}
 @media(max-width:380px){.topbar nav{display:none}.account-mode{font-size:7px}.stage{height:230px}.controls{grid-template-columns:1fr}.bet-card{grid-row:auto}.auto{grid-template-columns:1fr auto}.auto-value{grid-column:auto;width:95px}.how{grid-template-columns:1fr}}
+.layout{position:relative}
+.flight-panel{position:relative}
+.round-summary{flex-wrap:wrap}
+.round-summary #forecast-toggle{flex:0 0 100%;padding:5px 6px;border:1px solid #4a2632;border-radius:3px;background:#1b1014;color:#ff91aa;font:7px var(--mono);text-align:center;cursor:pointer}
+.round-summary #forecast-toggle:hover{border-color:#ff315f;background:#281019}
+.prediction#forecast-popup{position:absolute;z-index:8;top:86px;left:235px;width:min(286px,calc(100% - 20px));margin:0;box-shadow:0 14px 42px #000c;touch-action:pan-y}
+.prediction#forecast-popup[hidden]{display:none}
+.prediction-heading#forecast-drag-handle{cursor:grab;touch-action:none;user-select:none}
+.prediction#forecast-popup.dragging .prediction-heading{cursor:grabbing}
+.forecast-close{display:grid;flex:0 0 22px;width:22px;height:22px;place-items:center;border:1px solid #59313b;border-radius:4px;background:#211117;color:#ffb1c0;font-size:16px;line-height:1;cursor:pointer}
+.forecast-close:hover{border-color:#ff315f;background:#38101d}
+@media(max-width:820px){.prediction#forecast-popup{left:200px;top:145px;width:min(286px,calc(100% - 20px))}}
+@media(max-width:650px){.round-summary #forecast-toggle{flex:0 0 auto}.prediction#forecast-popup{left:8px;top:190px;width:min(286px,calc(100% - 16px))}}

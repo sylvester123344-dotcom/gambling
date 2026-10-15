@@ -6,6 +6,10 @@ const plane = $("#plane");
 const actionButton = $("#action-button");
 const toast = $("#toast");
 const roomFeed = $("#room-feed");
+const gameLayout = $(".layout");
+const forecastPopup = $("#forecast-popup");
+const forecastDragHandle = $("#forecast-drag-handle");
+const forecastToggle = $("#forecast-toggle");
 
 let roundNumber = 28418;
 let phase = "running";
@@ -35,6 +39,19 @@ function tell(message) {
   toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2300);
 }
 
+function moveForecast(left, top) {
+  const maxLeft = Math.max(0, gameLayout.clientWidth - forecastPopup.offsetWidth);
+  const maxTop = Math.max(0, gameLayout.clientHeight - forecastPopup.offsetHeight);
+  forecastPopup.style.left = `${Math.min(maxLeft, Math.max(0, left))}px`;
+  forecastPopup.style.top = `${Math.min(maxTop, Math.max(0, top))}px`;
+}
+
+function setForecastOpen(open) {
+  forecastPopup.hidden = !open;
+  forecastToggle.setAttribute("aria-expanded", String(open));
+  forecastToggle.textContent = open ? "Hide forecast" : "Show forecast";
+}
+
 function postRoomMessage(message, type = "system") {
   const item = document.createElement("div");
   item.className = `room-message ${type}`;
@@ -49,6 +66,48 @@ function postRoomMessage(message, type = "system") {
   while (roomFeed.children.length > 12) roomFeed.firstElementChild.remove();
   roomFeed.scrollTop = roomFeed.scrollHeight;
 }
+
+forecastToggle.addEventListener("click", () => {
+  setForecastOpen(forecastPopup.hidden);
+});
+
+$("#forecast-close").addEventListener("click", () => setForecastOpen(false));
+
+forecastDragHandle.addEventListener("pointerdown", (event) => {
+  if (event.button !== 0 || event.target.closest("button")) return;
+  event.preventDefault();
+  const startLeft = forecastPopup.offsetLeft;
+  const startTop = forecastPopup.offsetTop;
+  const startX = event.clientX;
+  const startY = event.clientY;
+  forecastPopup.classList.add("dragging");
+  forecastDragHandle.setPointerCapture(event.pointerId);
+
+  const onMove = (moveEvent) => {
+    moveForecast(startLeft + moveEvent.clientX - startX, startTop + moveEvent.clientY - startY);
+  };
+  const onEnd = () => {
+    forecastPopup.classList.remove("dragging");
+    forecastDragHandle.removeEventListener("pointermove", onMove);
+    forecastDragHandle.removeEventListener("pointerup", onEnd);
+    forecastDragHandle.removeEventListener("pointercancel", onEnd);
+  };
+  forecastDragHandle.addEventListener("pointermove", onMove);
+  forecastDragHandle.addEventListener("pointerup", onEnd);
+  forecastDragHandle.addEventListener("pointercancel", onEnd);
+});
+
+forecastDragHandle.addEventListener("keydown", (event) => {
+  const moves = { ArrowLeft: [-20, 0], ArrowRight: [20, 0], ArrowUp: [0, -20], ArrowDown: [0, 20] };
+  const move = moves[event.key];
+  if (!move) return;
+  event.preventDefault();
+  moveForecast(forecastPopup.offsetLeft + move[0], forecastPopup.offsetTop + move[1]);
+});
+
+window.addEventListener("resize", () => {
+  if (!forecastPopup.hidden) moveForecast(forecastPopup.offsetLeft, forecastPopup.offsetTop);
+});
 
 function renderBalance() {
   $("#balance").textContent = formatMoney(balance);

@@ -23,10 +23,13 @@
       <aside class="flight-panel" id="predictions">
         <div class="panel-heading"><div><span class="kicker"><i></i> FLIGHT INTELLIGENCE</span><h1>Flight log</h1></div><span class="live"><i></i> LIVE</span></div>
         <p class="panel-copy">Predictions are estimates, never guarantees.</p>
-        <div class="round-summary"><span>ROUND <strong id="round-number">#28419</strong></span><span>STATUS <strong class="watch" id="model-read">PRE-FLIGHT</strong></span></div>
+        <div class="round-summary"><span>ROUND <strong id="round-number">#28419</strong></span><span>STATUS <strong class="watch" id="model-read">PRE-FLIGHT</strong></span><button type="button" id="forecast-toggle" aria-controls="forecast-popup" aria-expanded="true">Hide forecast</button></div>
         <div class="feed" id="prediction-feed"><div class="feed-title"><span>RECENT FLIGHTS</span><span>OUTCOME</span></div></div>
-        <div class="prediction">
-          <div class="prediction-heading"><span class="spark">✳</span><span><small>PRE-FLIGHT FORECAST</small><strong>Scheduled crash point</strong></span><b id="read-badge">PREVIEW</b></div>
+        <div class="prediction" id="forecast-popup" role="dialog" aria-label="Pre-flight forecast">
+          <div class="prediction-heading" id="forecast-drag-handle" role="button" tabindex="0" aria-label="Move forecast popup. Use arrow keys to move.">
+            <span class="spark">✳</span><span><small>PRE-FLIGHT FORECAST</small><strong>Scheduled crash point</strong></span><b id="read-badge">PREVIEW</b>
+            <button type="button" class="forecast-close" id="forecast-close" aria-label="Hide forecast popup">×</button>
+          </div>
           <div class="forecast-value" id="forecast-value">—×</div>
           <p id="prediction-copy">Shown before each flight. This does not predict real crash games.</p>
         </div>
