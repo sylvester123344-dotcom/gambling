@@ -2,7 +2,7 @@ plugins {
     id "com.android.application"
 }
 
-def websiteRoot = projectDir.parentFile.parentFile.parentFile
+def websiteRoot = projectDir.parentFile.parentFile
 def generatedWebsiteAssets = layout.buildDirectory.dir("generated/websiteAssets")
 
 android {
@@ -27,6 +27,13 @@ tasks.register("copyWebsiteAssets", Sync) {
         include "index.html", "styles.css", "app.js", "manifest.webmanifest", "icon.svg"
     }
     into(generatedWebsiteAssets)
+    doFirst {
+        ["index.html", "styles.css", "app.js", "manifest.webmanifest", "icon.svg"].each { filename ->
+            if (!new File(websiteRoot, filename).isFile()) {
+                throw new GradleException("Missing website asset: ${new File(websiteRoot, filename)}")
+            }
+        }
+    }
 }
 
 tasks.named("preBuild").configure {
