@@ -111,6 +111,7 @@ window.addEventListener("resize", () => {
 
 function renderBalance() {
   $("#balance").textContent = formatMoney(balance);
+  $("#deposit-current").textContent = formatMoney(balance);
 }
 
 function addOutcome(value, time = "NOW", flightRound = roundNumber) {
@@ -303,6 +304,79 @@ document.querySelectorAll(".quick button").forEach((button) => {
     $("#bet-amount").value = button.dataset.amount;
     $("#bet-amount").dispatchEvent(new Event("input"));
   });
+});
+
+let deferredInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  const installButton = $("#install-button");
+  installButton.hidden = false;
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  $("#install-button").hidden = true;
+  tell("Skyline was installed on this Android device.");
+});
+
+$("#install-button").addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  $("#install-button").hidden = true;
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      tell("Offline mode could not be enabled.");
+    });
+  });
+}
+
+const depositModal = $("#deposit-modal");
+const depositAmount = $("#deposit-amount");
+
+function setDepositOpen(open) {
+  depositModal.hidden = !open;
+  document.body.classList.toggle("modal-open", open);
+  if (open) {
+    renderBalance();
+    depositAmount.focus();
+  } else {
+    const depositButton = $("#deposit-button");
+    if (depositButton && !depositButton.hidden) depositButton.focus();
+  }
+}
+
+$("#deposit-button").addEventListener("click", () => setDepositOpen(true));
+$("#deposit-close").addEventListener("click", () => setDepositOpen(false));
+depositModal.addEventListener("click", (event) => {
+  if (event.target === depositModal) setDepositOpen(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !depositModal.hidden) setDepositOpen(false);
+});
+document.querySelectorAll("[data-deposit]").forEach((button) => {
+  button.addEventListener("click", () => {
+    depositAmount.value = button.dataset.deposit;
+  });
+});
+$("#deposit-confirm").addEventListener("click", () => {
+  const amount = Math.floor(Number(depositAmount.value));
+  if (!Number.isInteger(amount) || amount < 1 || amount > 10000) {
+    tell("Choose between $1 and $10,000 in play credits.");
+    depositAmount.focus();
+    return;
+  }
+  balance += amount;
+  renderBalance();
+  setDepositOpen(false);
+  tell(`${formatMoney(amount)} virtual play credits added.`);
+  postRoomMessage(`${formatMoney(amount)} virtual play credits were added to your balance.`);
 });
 
 $("#sound-toggle").addEventListener("click", (event) => {
