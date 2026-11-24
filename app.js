@@ -10,6 +10,9 @@ const gameLayout = $(".layout");
 const forecastPopup = $("#forecast-popup");
 const forecastDragHandle = $("#forecast-drag-handle");
 const forecastToggle = $("#forecast-toggle");
+const roundAnimation = $("#round-animation");
+const roundAnimationLabel = $("#round-animation-label");
+const roundAnimationValue = $("#round-animation-value");
 
 if (new URLSearchParams(window.location.search).get("app") === "android") {
   document.body.classList.add("forecast-app");
@@ -230,6 +233,7 @@ function updateFlight() {
   plane.style.top = `${Math.max(20, 72 - progress * 43)}%`;
   $("#stage-time").textContent = `FLIGHT TIME ${Math.floor((multiplierValue - 1) * 8)}s`;
   $("#path-curve").style.strokeDashoffset = String(progress * 370);
+  if (phase === "running") roundAnimationValue.textContent = `${multiplierValue.toFixed(2)}×`;
 }
 
 function setAction() {
@@ -273,6 +277,10 @@ function finishRound() {
   stage.style.setProperty("--crash-x", plane.style.left);
   stage.style.setProperty("--crash-y", plane.style.top);
   stage.classList.add("crash-burst");
+  roundAnimation.classList.remove("in-flight");
+  roundAnimation.classList.add("crash-burst");
+  roundAnimationLabel.textContent = "FLIGHT ENDED";
+  roundAnimationValue.textContent = `${crashedAt.toFixed(2)}×`;
   playCrashSound();
   if (joined) tell("Flight ended before you cashed out.");
   postRoomMessage(`Flight ${roundNumber} ended at ${crashedAt.toFixed(2)}×.`);
@@ -296,6 +304,11 @@ function startRound() {
   $("#model-read").textContent = "PRE-FLIGHT";
   $("#read-badge").textContent = "SCHEDULED";
   $("#forecast-value").textContent = `~${crashedAt.toFixed(2)}×`;
+  $("#round-animation-number").textContent = `#${roundNumber}`;
+  roundAnimation.classList.remove("in-flight", "crash-burst");
+  roundAnimation.classList.add("countdown");
+  roundAnimationLabel.textContent = "FLIGHT STARTS IN";
+  roundAnimationValue.textContent = `${countdownSeconds}s`;
   $("#prediction-copy").textContent = "This flight has a preset result. Real Aviator outcomes cannot be predicted this way.";
   postRoomMessage(`Flight ${roundNumber} forecast is ${crashedAt.toFixed(2)}×. This is a preset game result, not a real-world prediction.`);
   $("#game-status").textContent = `NEXT FLIGHT IN ${countdownSeconds}s`;
@@ -315,12 +328,17 @@ function startRound() {
       return;
     }
     $("#game-status").textContent = `NEXT FLIGHT IN ${countdownSeconds}s`;
+    roundAnimationValue.textContent = `${countdownSeconds}s`;
     setAction();
   }, 1000);
 }
 
 function launchRound() {
   phase = "running";
+  roundAnimation.classList.remove("countdown", "crash-burst");
+  roundAnimation.classList.add("in-flight");
+  roundAnimationLabel.textContent = "IN FLIGHT";
+  roundAnimationValue.textContent = `${multiplierValue.toFixed(2)}×`;
   $("#model-read").textContent = "IN FLIGHT";
   $("#game-status").textContent = "ROUND IN PROGRESS";
   postRoomMessage(`Flight ${roundNumber} is in the air.`);

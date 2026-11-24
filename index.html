@@ -31,6 +31,10 @@
         <div class="panel-heading"><div><span class="kicker"><i></i> FLIGHT INTELLIGENCE</span><h1>Flight log</h1></div><span class="live"><i></i> LIVE</span></div>
         <p class="panel-copy">Predictions are estimates, never guarantees.</p>
         <div class="round-summary"><span>ROUND <strong id="round-number">#28419</strong></span><span>STATUS <strong class="watch" id="model-read">PRE-FLIGHT</strong></span><button type="button" id="forecast-toggle" aria-controls="forecast-popup" aria-expanded="true">Hide forecast</button></div>
+        <div class="round-animation" id="round-animation" aria-hidden="true">
+          <div class="round-animation-track"><span class="round-animation-plane">✈</span></div>
+          <div class="round-animation-center"><small id="round-animation-label">FLIGHT STARTS IN</small><strong id="round-animation-value">5s</strong><span>ROUND <b id="round-animation-number">#28419</b></span></div>
+        </div>
         <div class="feed" id="prediction-feed"><div class="feed-title"><span>RECENT FLIGHTS</span><span>OUTCOME</span></div></div>
         <div class="prediction" id="forecast-popup" role="dialog" aria-label="Pre-flight forecast">
           <div class="prediction-heading" id="forecast-drag-handle" role="button" tabindex="0" aria-label="Move forecast popup. Use arrow keys to move.">
