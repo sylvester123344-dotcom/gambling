@@ -162,8 +162,8 @@ footer span{font-size:7px}
 .deposit-dialog .deposit-disclaimer{margin-top:10px;color:#858a8e;font-size:8px;line-height:1.5}
 @media(max-width:650px){.deposit-button{padding:6px}.account .avatar{display:none}.deposit-dialog{padding:20px}.deposit-presets{gap:5px}}
 
-.layout{grid-template-columns:minmax(0,520px);justify-content:center}
-.game-main,.room-panel{display:none}
-.flight-panel{position:static;width:100%;max-width:520px;min-height:calc(100vh - 90px)}
-.topbar nav{display:none}
-@media(max-width:650px){.layout{grid-template-columns:1fr}.flight-panel{min-height:calc(100vh - 75px)}.account-mode{display:none}}
+.forecast-app .layout{grid-template-columns:minmax(0,520px);justify-content:center}
+.forecast-app .game-main,.forecast-app .room-panel{display:none}
+.forecast-app .flight-panel{position:static;width:100%;max-width:520px;min-height:calc(100vh - 90px)}
+.forecast-app .topbar nav,.forecast-app .account-mode{display:none}
+@media(max-width:650px){.forecast-app .layout{grid-template-columns:1fr}.forecast-app .flight-panel{min-height:calc(100vh - 75px)}}

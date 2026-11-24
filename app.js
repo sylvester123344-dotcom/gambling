@@ -11,6 +11,10 @@ const forecastPopup = $("#forecast-popup");
 const forecastDragHandle = $("#forecast-drag-handle");
 const forecastToggle = $("#forecast-toggle");
 
+if (new URLSearchParams(window.location.search).get("app") === "android") {
+  document.body.classList.add("forecast-app");
+}
+
 let roundNumber = 28418;
 let phase = "running";
 let joined = false;
@@ -329,7 +333,7 @@ $("#install-button").addEventListener("click", async () => {
   $("#install-button").hidden = true;
 });
 
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && (window.location.protocol === "https:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch(() => {
       tell("Offline mode could not be enabled.");

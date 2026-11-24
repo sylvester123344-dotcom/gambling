@@ -1,0 +1,34 @@
+plugins {
+    id "com.android.application"
+}
+
+def websiteRoot = projectDir.parentFile.parentFile.parentFile
+def generatedWebsiteAssets = layout.buildDirectory.dir("generated/websiteAssets")
+
+android {
+    namespace "com.sylvester123344.skyline"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.sylvester123344.skyline"
+        minSdk 23
+        targetSdk 28
+        versionCode 1
+        versionName "1.0"
+    }
+
+    sourceSets {
+        main.assets.srcDir(generatedWebsiteAssets)
+    }
+}
+
+tasks.register("copyWebsiteAssets", Sync) {
+    from(websiteRoot) {
+        include "index.html", "styles.css", "app.js", "manifest.webmanifest", "icon.svg"
+    }
+    into(generatedWebsiteAssets)
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("copyWebsiteAssets")
+}
