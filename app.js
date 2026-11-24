@@ -27,6 +27,12 @@ let toastTimer;
 let flightTimer;
 let countdownTimer;
 let countdownSeconds = 5;
+let audioContext;
+let musicGain;
+let musicTimer;
+let musicStep = 0;
+let soundEnabled = false;
+const musicNotes = [110, 164.81, 220, 164.81, 130.81, 196, 261.63, 196];
 
 const outcomes = [1.42, 2.18, 1.09, 3.64, 1.76, 1.23, 5.12, 1.31, 2.74, 1.58];
 let outcomeIndex = 0;
@@ -118,6 +124,79 @@ function renderBalance() {
   $("#deposit-current").textContent = formatMoney(balance);
 }
 
+function playMusicNote() {
+  if (!soundEnabled || audioContext.state !== "running") return;
+  const oscillator = audioContext.createOscillator();
+  const noteGain = audioContext.createGain();
+  const now = audioContext.currentTime;
+  oscillator.type = "sine";
+  oscillator.frequency.value = musicNotes[musicStep % musicNotes.length];
+  noteGain.gain.setValueAtTime(0.0001, now);
+  noteGain.gain.exponentialRampToValueAtTime(0.045, now + 0.04);
+  noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
+  oscillator.connect(noteGain);
+  noteGain.connect(musicGain);
+  oscillator.start(now);
+  oscillator.stop(now + 0.4);
+  musicStep += 1;
+}
+
+async function enableSound() {
+  const AudioContextType = window.AudioContext || window.webkitAudioContext;
+  if (!audioContext) {
+    if (!AudioContextType) throw new Error("Web Audio is not supported by this browser.");
+    audioContext = new AudioContextType();
+    musicGain = audioContext.createGain();
+    musicGain.gain.value = 0.6;
+    musicGain.connect(audioContext.destination);
+  }
+  await audioContext.resume();
+  soundEnabled = true;
+  playMusicNote();
+  musicTimer = window.setInterval(playMusicNote, 420);
+}
+
+function disableSound() {
+  soundEnabled = false;
+  window.clearInterval(musicTimer);
+  musicTimer = null;
+  if (musicGain && audioContext) {
+    musicGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.08);
+  }
+}
+
+function playCrashSound() {
+  if (!soundEnabled || !audioContext || audioContext.state !== "running") return;
+  const now = audioContext.currentTime;
+  const sampleCount = Math.floor(audioContext.sampleRate * 0.45);
+  const noiseBuffer = audioContext.createBuffer(1, sampleCount, audioContext.sampleRate);
+  const samples = noiseBuffer.getChannelData(0);
+  for (let index = 0; index < sampleCount; index += 1) {
+    samples[index] = (Math.random() * 2 - 1) * (1 - index / sampleCount);
+  }
+
+  const noise = audioContext.createBufferSource();
+  const noiseGain = audioContext.createGain();
+  noise.buffer = noiseBuffer;
+  noiseGain.gain.setValueAtTime(0.18, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+  noise.connect(noiseGain);
+  noiseGain.connect(audioContext.destination);
+  noise.start(now);
+
+  const thump = audioContext.createOscillator();
+  const thumpGain = audioContext.createGain();
+  thump.type = "sawtooth";
+  thump.frequency.setValueAtTime(92, now);
+  thump.frequency.exponentialRampToValueAtTime(32, now + 0.4);
+  thumpGain.gain.setValueAtTime(0.24, now);
+  thumpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+  thump.connect(thumpGain);
+  thumpGain.connect(audioContext.destination);
+  thump.start(now);
+  thump.stop(now + 0.42);
+}
+
 function addOutcome(value, time = "NOW", flightRound = roundNumber) {
   const row = document.createElement("div");
   row.className = "feed-row";
@@ -156,9 +235,10 @@ function updateFlight() {
 function setAction() {
   const title = $("#action-title");
   const subtitle = $("#action-subtitle");
-  $("#bet-amount").disabled = phase === "running" && participatedThisRound;
+  const canJoin = phase === "countdown" && !participatedThisRound;
+  $("#bet-amount").disabled = !canJoin;
   document.querySelectorAll(".quick button, .amount button").forEach((button) => {
-    button.disabled = phase !== "running" || participatedThisRound;
+    button.disabled = !canJoin;
   });
   if (phase === "running" && joined) {
     title.textContent = "Cash out credits";
@@ -169,13 +249,13 @@ function setAction() {
     subtitle.textContent = "Wait for the next flight";
     actionButton.disabled = true;
   } else if (phase === "running") {
-    title.textContent = "Join next round";
-    subtitle.textContent = "Play credits only · no cash value";
-    actionButton.disabled = false;
-  } else if (phase === "countdown") {
-    title.textContent = `Flight starts in ${countdownSeconds}s`;
-    subtitle.textContent = "Forecast for the upcoming flight";
+    title.textContent = "Betting closed";
+    subtitle.textContent = "Join before the flight starts";
     actionButton.disabled = true;
+  } else if (phase === "countdown") {
+    title.textContent = joined ? `Flight starts in ${countdownSeconds}s` : "Join next round";
+    subtitle.textContent = joined ? "Stake locked for the upcoming flight" : "Place your stake before launch";
+    actionButton.disabled = joined;
   } else {
     title.textContent = "Get ready for next round";
     subtitle.textContent = "Round restarting shortly";
@@ -189,6 +269,11 @@ function finishRound() {
   $("#game-status").textContent = "ROUND COMPLETE";
   $("#crash-result").textContent = `Final flight: ${crashedAt.toFixed(2)}×`;
   $("#crash-overlay").hidden = false;
+  const stage = $("#sky-stage");
+  stage.style.setProperty("--crash-x", plane.style.left);
+  stage.style.setProperty("--crash-y", plane.style.top);
+  stage.classList.add("crash-burst");
+  playCrashSound();
   if (joined) tell("Flight ended before you cashed out.");
   postRoomMessage(`Flight ${roundNumber} ended at ${crashedAt.toFixed(2)}×.`);
   joined = false;
@@ -215,6 +300,10 @@ function startRound() {
   postRoomMessage(`Flight ${roundNumber} forecast is ${crashedAt.toFixed(2)}×. This is a preset game result, not a real-world prediction.`);
   $("#game-status").textContent = `NEXT FLIGHT IN ${countdownSeconds}s`;
   $("#crash-overlay").hidden = true;
+  const stage = $("#sky-stage");
+  stage.classList.remove("crash-burst");
+  stage.style.removeProperty("--crash-x");
+  stage.style.removeProperty("--crash-y");
   updateFlight();
   setAction();
   window.clearInterval(countdownTimer);
@@ -258,12 +347,13 @@ function cashOut() {
 }
 
 actionButton.addEventListener("click", () => {
-  if (phase !== "running") {
-    tell("Next flight is getting ready.");
+  if (joined) {
+    if (phase === "running") cashOut();
+    else tell("Your stake is locked until the flight starts.");
     return;
   }
-  if (joined) {
-    cashOut();
+  if (phase !== "countdown") {
+    tell(phase === "running" ? "Betting closed when the flight started." : "Next flight is getting ready.");
     return;
   }
   if (participatedThisRound) {
@@ -383,12 +473,23 @@ $("#deposit-confirm").addEventListener("click", () => {
   postRoomMessage(`${formatMoney(amount)} virtual play credits were added to your balance.`);
 });
 
-$("#sound-toggle").addEventListener("click", (event) => {
+$("#sound-toggle").addEventListener("click", async (event) => {
   const button = event.currentTarget;
   const enabled = button.getAttribute("aria-pressed") !== "true";
+  if (enabled) {
+    try {
+      await enableSound();
+    } catch (error) {
+      disableSound();
+      tell(`Sound could not start: ${error.message}`);
+      return;
+    }
+  } else {
+    disableSound();
+  }
   button.setAttribute("aria-pressed", String(enabled));
   button.querySelector("span").textContent = enabled ? "Sound on" : "Sound off";
-  tell(enabled ? "Sound controls are not connected yet." : "Sound off.");
+  tell(enabled ? "Original flight music and crash sounds are on." : "Sound off.");
 });
 
 $("#room-form").addEventListener("submit", (event) => {

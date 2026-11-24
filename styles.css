@@ -167,3 +167,12 @@ footer span{font-size:7px}
 .forecast-app .flight-panel{position:static;width:100%;max-width:520px;min-height:calc(100vh - 90px)}
 .forecast-app .topbar nav,.forecast-app .account-mode{display:none}
 @media(max-width:650px){.forecast-app .layout{grid-template-columns:1fr}.forecast-app .flight-panel{min-height:calc(100vh - 75px)}}
+
+.stage.crash-burst:before{position:absolute;z-index:3;inset:0;pointer-events:none;background:radial-gradient(circle at var(--crash-x,76%) var(--crash-y,38%),#fff5d9 0%,#ff315f88 5%,transparent 30%);content:"";animation:crash-flash .55s ease-out both}
+.stage.crash-burst .plane{animation:plane-crash .6s ease-out both}
+.plane:after{position:absolute;z-index:-1;top:50%;left:50%;width:12px;height:12px;border:2px solid #ffd58a;border-radius:50%;box-shadow:0 0 22px 7px #ff315f99;content:"";opacity:0;transform:translate(-50%,-50%)}
+.stage.crash-burst .plane:after{animation:crash-explosion .7s ease-out both}
+@keyframes crash-flash{0%{opacity:0}15%{opacity:.95}100%{opacity:0}}
+@keyframes crash-explosion{0%{width:8px;height:8px;opacity:.95}100%{width:120px;height:120px;opacity:0}}
+@keyframes plane-crash{0%{opacity:1;transform:rotate(-19deg) scale(1)}45%{opacity:1;transform:rotate(15deg) scale(1.35)}100%{opacity:0;transform:rotate(40deg) scale(.5)}}
+@media(prefers-reduced-motion:reduce){.stage.crash-burst:before,.stage.crash-burst .plane,.stage.crash-burst .plane:after{animation-duration:.01ms}}
